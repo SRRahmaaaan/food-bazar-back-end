@@ -46,7 +46,12 @@ client.connect(err => {
             res.send(documents)
         })
     })
-
+    app.delete("/deleteSpecific/:id", (req, res) => {
+        foodCollection.deleteOne({_id: ObjectId(req.params.id)})
+            .then(result => {
+            res.send(result.deletedCount > 0 )
+        })
+    })
 
 
 });
