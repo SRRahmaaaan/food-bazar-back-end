@@ -2,6 +2,7 @@ const express = require("express")
 const cors = require("cors")
 require("dotenv").config()
 const MongoClient = require("mongodb").MongoClient;
+const ObjectId = require("mongodb").ObjectId
 
 const app = express()
 app.use(cors())
@@ -14,6 +15,7 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 
 client.connect(err => {
     const foodCollection = client.db("fooddb").collection("foods");
+    const OrderCollection = client.db("orderdb").collection("orders");
     app.post("/newFood", (req, res) => {
         foodCollection.insertOne(req.body)
         .then(result => {
@@ -26,9 +28,24 @@ client.connect(err => {
             res.send(documents)
         })
     })
-
-
-
+    app.get("/singleFood/:id", (req, res) => {
+        foodCollection.find({_id:ObjectId(req.params.id)})
+        .toArray((error, documents) => {
+            res.send(documents[0])
+        })
+    })
+    app.post("/orderedFood", (req, res) => {
+        OrderCollection.insertOne(req.body)
+        .then(result => {
+            res.send(result.insertedCount > 0)
+        })
+    })
+    app.get("/getSpecific", (req, res) => {
+        OrderCollection.find({ user: req.query.email })
+        .toArray((error,documents) => {
+            res.send(documents)
+        })
+    })
 
 
 
